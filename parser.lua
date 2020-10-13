@@ -37,13 +37,13 @@ function Parser.__bor(a, b)
         if instanceOf(b, Parser) then
             return OrParser:new(a, b)
         else
-            return OrParser:new(a, StringParser:new(b))
+            return OrParser:new(a, P(b))
         end
     elseif instanceOf(b,Parser) then
         if instanceOf(a, Parser) then
             return OrParser:new(a, b)
         else
-            return OrParser:new(StringParser:new(a), b)
+            return OrParser:new(P(a), b)
         end
     else
         error("this shouldn't happen")
@@ -55,13 +55,13 @@ function Parser.__band(a, b)
         if instanceOf(b, Parser) then
             return AndParser:new(a, b)
         else
-            return AndParser:new(a, StringParser:new(b))
+            return AndParser:new(a, P(b))
         end
     elseif instanceOf(b,Parser) then
         if instanceOf(a, Parser) then
             return AndParser:new(a, b)
         else
-            return AndParser:new(StringParser:new(a), b)
+            return AndParser:new(P(a), b)
         end
     else
         error("this shouldn't happen")
@@ -107,11 +107,11 @@ end
 -- "next" is always a ParserLinkList
 -- returns ast, token_consumed
 function StringParser:match(lexer, startIdx, result, next)
-    local token = lexer:nextToken(startIdx)
+    local token = lexer:getToken(startIdx)
     print("Checking string: " .. self.pattern .. " ? " .. token)
     if nil == token or token ~= self.pattern then
         print(token .. " .. 1.1")
-        return nil, 1
+        return false, 1
     elseif nil ~= next then
         print(token .. " .. 1.2")
         print("Matched: " .. token)
@@ -138,11 +138,11 @@ end
 
 -- returns ast, token_consumed
 function PatternParser:match(lexer, startIdx, result, next)
-    local token = lexer:nextToken(startIdx)
+    local token = lexer:getToken(startIdx)
     print("Checking pattern: " .. self.pattern .. " ? " .. token)
     if nil == token or nil == string.match(token, self.pattern) then
         print(token .. " .. 2.1")
-        return nil, 1
+        return false, 1
     elseif nil ~= next then
         print(token .. " .. 2.2")
         print("Matched: " .. token)
@@ -198,7 +198,7 @@ function OrParser:match(lexer, startIdx, result, next)
     end
 end
 
-local lex = Lexer:new("hello world(age = x)")
+local lex = Lexer:new("hello world(age = 10)")
 
 --local x1 = Parser:new()
 --print("x1: " .. tostring(x1))
