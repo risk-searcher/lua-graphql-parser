@@ -217,6 +217,6 @@ local lex = Lexer:new("hello world(age = 10)")
 local name = P("name") & "=" & "%w+"
 local age = P("age") & "=" & "%d+"
 local parser = P("hello") & "world" & "(" & (name | age) & ")"
-local ok, token_consumed = parser:match(lex, 1, nil)
+local ok, token_consumed = parser:match(lex, 1, nil, nil)
 print(ok)
 print(token_consumed)

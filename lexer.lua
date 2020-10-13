@@ -107,16 +107,16 @@ function Lexer:nextToken(startIdx)
 end
 
 
-local lex = Lexer:new("hello world($x -1.2e1cc{@adsf (a: \"adsdf   \\\" asss\" xx")
-print(lex:getToken(4))
-local lex = Lexer:new("\"adsdf   \\\" asss\" 12 hello")
-local token, idx, err
-idx = 1
-while true do
-    token, idx, err = lex:nextToken(idx)
-    if nil == token then
-        break
-    else
-        print(token)
-    end
-end
+--local lex = Lexer:new("hello world($x -1.2e1cc{@adsf (a: \"adsdf   \\\" asss\" xx")
+--print(lex:getToken(4))
+--local lex = Lexer:new("\"adsdf   \\\" asss\" 12 hello")
+--local token, idx, err
+--idx = 1
+--while true do
+--    token, idx, err = lex:nextToken(idx)
+--    if nil == token then
+--        break
+--    else
+--        print(token)
+--    end
+--end
