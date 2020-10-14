@@ -7,7 +7,7 @@ local function createNewClass(name, Base)
     Base.__index = Base
     -- Unfortunately, metamethods are not inherited
     -- https://stackoverflow.com/questions/36229151/doesnt-lua-inheritance-include-metamethods
-    for k, v in pairs{"__add", "__sub", "__mul", "__div", "__mod", "__unm", "__concat", "__eq", "__lt", "__le"} do
+    for k, v in pairs{"__add", "__sub", "__mul", "__div", "__band", "__bor", "__mod", "__unm", "__concat", "__eq", "__lt", "__le"} do
         if nil ~= Base[v] then
             clz[v] = Base[v]
         end
