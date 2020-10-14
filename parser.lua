@@ -94,6 +94,8 @@ end
 ---- constant string parser
 StringParser = Parser:new()
 StringParser.__index = StringParser
+-- Unfortunately, metamethods are not inherited
+-- https://stackoverflow.com/questions/36229151/doesnt-lua-inheritance-include-metamethods
 StringParser.__band = Parser.__band
 StringParser.__bor = Parser.__bor
 

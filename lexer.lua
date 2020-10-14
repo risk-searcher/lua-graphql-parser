@@ -2,7 +2,7 @@ local function lastchar(input)
     return input:sub(#input, #input)
 end
 
-Lexer = {}
+local Lexer = {}
 Lexer.__index = Lexer
 
 function Lexer:new(text)
@@ -16,7 +16,7 @@ end
 
 -- single thread only, need to update Lexer content
 function Lexer:getToken(index)
-    while index > #self.tokens or self.curPos < #self.text do
+    while index > #self.tokens or (self.curPos ~= nil and self.curPos < #self.text) do
         local token, pos, err = self:nextToken(self.curPos)
         if err ~= nil then
             return nil, err
@@ -42,6 +42,7 @@ function Lexer:nextToken(startIdx)
     -- insideString: 0=not inside quoted string, 1=inside quoted string, 2=inside block string
     local insideString = 0
     local lastIsSlash = false
+    local quoteCount = 0
     while i <= #text do
         local c = text:sub(i, i)
         if insideString == 1 then
@@ -57,6 +58,22 @@ function Lexer:nextToken(startIdx)
             end
         elseif insideString == 2 then
             -- block string
+            if lastIsSlash then
+                lastIsSlash = false
+            else
+                if c == "\\" then
+                    lastIsSlash = true
+                    quoteCount = 0
+                elseif c == "\"" then
+                    quoteCount = quoteCount+1
+                    if quoteCount >= 3 then
+                        quoteCount = 0
+                        return text:sub(captureStart, i), i+1, nil
+                    end
+                else
+                    quoteCount = 0
+                end
+            end
         else
             if nil ~= string.find("!():=[]{|}", c, 1, true) then
                 if captureStart > 0 then
@@ -84,14 +101,20 @@ function Lexer:nextToken(startIdx)
                     i = xstart
                 end
             elseif "\"" == c then
-                captureStart = i
-                lastIsSlash = false
-                if text:match("^\"\"\"", i) then
-                    -- block string
-                    insideString = 2
+                if captureStart > 0 then
+                    return text:sub(captureStart, i-1), i, nil
                 else
-                    -- regular quoted string
-                    insideString = 1
+                    captureStart = i
+                    lastIsSlash = false
+                    if text:match("^\"\"\"", i) then
+                        -- block string
+                        insideString = 2
+                        quoteCount = 0
+                        i = i+2
+                    else
+                        -- regular quoted string
+                        insideString = 1
+                    end
                 end
             else
                 if captureStart == 0 then
@@ -106,17 +129,4 @@ function Lexer:nextToken(startIdx)
     end
 end
 
-
---local lex = Lexer:new("hello world($x -1.2e1cc{@adsf (a: \"adsdf   \\\" asss\" xx")
---print(lex:getToken(4))
---local lex = Lexer:new("\"adsdf   \\\" asss\" 12 hello")
---local token, idx, err
---idx = 1
---while true do
---    token, idx, err = lex:nextToken(idx)
---    if nil == token then
---        break
---    else
---        print(token)
---    end
---end
+return Lexer
