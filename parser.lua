@@ -78,14 +78,15 @@ local P = Parser.from
 --- @param startIdx the start index of the lexer (in terms of token, not character)
 --- @param data
 --- @param next the next Parser to match if this one matches, next has to be a ParserLinkList
---- @return MatchResult
+--- @return MatchResult nil if not match
 function Parser:match(lexer, startIdx, data, next)
+    local this_data = nil
     if nil ~= data then
-        data = self:pre_process(data)
+        this_data = self:pre_process(data)
     end
-    local result = self:match_internal(lexer, startIdx, data, next)
+    local result = self:match_internal(lexer, startIdx, this_data, next)
     if nil ~= result and nil ~= data then
-        result = self:post_match(data, result)
+        result = self:post_match(data, this_data, result)
     end
     return result
 end
@@ -98,7 +99,7 @@ function Parser:match_internal(lexer, startIdx, data, next)
     error("this shouldn't happen")
 end
 
-function Parser:post_match(data, result)
+function Parser:post_match(data, this_data, result)
     return result
 end
 
@@ -118,6 +119,10 @@ function Parser.__bor(lhs, rhs)
     else
         error("this shouldn't happen")
     end
+end
+
+function Parser.__add(lhs, rhs)
+    return Parser.__band(lhs, rhs)
 end
 
 function Parser.__band(lhs, rhs)
