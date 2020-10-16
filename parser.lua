@@ -76,30 +76,22 @@ local P = Parser.from
 --- check if the provided lexer matches the parser definition
 --- @param lexer the token lexer
 --- @param startIdx the start index of the lexer (in terms of token, not character)
---- @param data
+--- @param skip_post_match
 --- @param next the next Parser to match if this one matches, next has to be a ParserLinkList
 --- @return MatchResult nil if not match
-function Parser:match(lexer, startIdx, data, next)
-    local this_data = nil
-    if nil ~= data then
-        this_data = self:pre_process(data)
-    end
-    local result = self:match_internal(lexer, startIdx, this_data, next)
-    if nil ~= result and nil ~= data then
-        result = self:post_match(data, this_data, result)
+function Parser:match(lexer, startIdx, skip_post_match, next)
+    local result = self:match_internal(lexer, startIdx, skip_post_match, next)
+    if nil ~= result and not skip_post_match then
+        result = self:post_match(result)
     end
     return result
 end
 
-function Parser:pre_process(data)
-    return data
-end
-
-function Parser:match_internal(lexer, startIdx, data, next)
+function Parser:match_internal(lexer, startIdx, skip_post_match, next)
     error("this shouldn't happen")
 end
 
-function Parser:post_match(data, this_data, result)
+function Parser:post_match(result)
     return result
 end
 
@@ -174,8 +166,13 @@ end
 -- ==============================================
 local ParserLinkList = Clazz.class("ParserLinkList", Parser)
 
-function ParserLinkList:match_internal(lexer, startIdx, data, next)
-    return self.head:match(lexer, startIdx, data, next)
+-- no need to call pre_process and post_match for ParserLinkList
+function ParserLinkList:match(lexer, startIdx, skip_post_match, next)
+    return self.head:match(lexer, startIdx, skip_post_match, next)
+end
+
+function ParserLinkList:match_internal(lexer, startIdx, skip_post_match, next)
+    return self.head:match(lexer, startIdx, skip_post_match, next)
 end
 
 -- ==============================================
@@ -185,12 +182,12 @@ StringParser = Clazz.class("StringParser", Parser)
 
 -- "next" is always a ParserLinkList
 -- returns ast, token_consumed
-function StringParser:match_internal(lexer, startIdx, data, next)
+function StringParser:match_internal(lexer, startIdx, skip_post_match, next)
     local token = lexer:getToken(startIdx)
     if nil == token or token ~= self.pattern then
         return nil
     elseif nil ~= next then
-        local result = next:match(lexer, startIdx + 1, data, next.next)
+        local result = next:match(lexer, startIdx + 1, skip_post_match, next.next)
         if nil == result then return nil end
         return result:prepend(token)
     else
@@ -204,12 +201,12 @@ end
 PatternParser = Clazz.class("PatternParser", Parser)
 
 -- returns ast, token_consumed
-function PatternParser:match_internal(lexer, startIdx, data, next)
+function PatternParser:match_internal(lexer, startIdx, skip_post_match, next)
     local token = lexer:getToken(startIdx)
     if nil == token or nil == string.match(token, self.pattern) then
         return nil
     elseif nil ~= next then
-        local result = next:match(lexer, startIdx + 1, data, next.next)
+        local result = next:match(lexer, startIdx + 1, skip_post_match, next.next)
         if nil == result then return nil end
         return result:prepend(token)
     else
@@ -223,9 +220,9 @@ end
 AndParser = Clazz.class("AndParser", Parser)
 
 -- returns ast, token_consumed
-function AndParser:match_internal(lexer, startIdx, data, next)
+function AndParser:match_internal(lexer, startIdx, skip_post_match, next)
     local list = ParserLinkList:new{head=self.right, next=next}
-    return self.left:match(lexer, startIdx, data, list)
+    return self.left:match(lexer, startIdx, skip_post_match, list)
 end
 
 -- ==============================================
@@ -234,12 +231,12 @@ end
 OrParser = Clazz.class("OrParser", Parser)
 
 -- returns ast, token_consumed
-function OrParser:match_internal(lexer, startIdx, data, next)
-    local result = self.left:match(lexer, startIdx, data, next)
+function OrParser:match_internal(lexer, startIdx, skip_post_match, next)
+    local result = self.left:match(lexer, startIdx, skip_post_match, next)
     if nil ~= result then
         return result
     else
-        return self.right:match(lexer, startIdx, data, next)
+        return self.right:match(lexer, startIdx, skip_post_match, next)
     end
 end
 
@@ -249,13 +246,13 @@ end
 RepetitionParser = Clazz.class("RepetitionParser", Parser)
 
 -- returns ok, token_consumed
-function RepetitionParser:match_internal(lexer, startIdx, data, next)
+function RepetitionParser:match_internal(lexer, startIdx, skip_post_match, next)
     -- first, let's peek and get the max number of possible match
     local count = 0
     local tmp = ParserLinkList:new{head=self.parser, next=nil}
     while true do
         -- passing nil as result in here, to indicate we are not using it
-        local result = tmp:match(lexer, startIdx, nil, tmp.next)
+        local result = tmp:match(lexer, startIdx, true, tmp.next)
         if nil ~= result then
             count = count+1
             if self.max ~= -1 and count >= self.max then break end
@@ -268,7 +265,7 @@ function RepetitionParser:match_internal(lexer, startIdx, data, next)
     if count == 0 then
         if self.min == 0 then
             if nil == next then return MatchResult.empty() end
-            return next:match(lexer, startIdx, data, next.next)
+            return next:match(lexer, startIdx, skip_post_match, next.next)
         else
             return nil
         end
@@ -280,7 +277,7 @@ function RepetitionParser:match_internal(lexer, startIdx, data, next)
             for i=1, count do
                 tmp = ParserLinkList:new{head=self.parser, next=tmp}
             end
-            local result = tmp:match(lexer, startIdx, data, tmp.next)
+            local result = tmp:match(lexer, startIdx, skip_post_match, tmp.next)
             if nil ~= result then
                 return result
             else
@@ -304,8 +301,11 @@ function ParserWrapper:wrap(parser)
 end
 
 -- returns ast, token_consumed
-function ParserWrapper:match_internal(lexer, startIdx, data, next)
-    return self.parser:match(lexer, startIdx, data, next)
+function ParserWrapper:match_internal(lexer, startIdx, skip_post_match, next)
+    if nil == self.parser then
+        print(self.__name)
+    end
+    return self.parser:match(lexer, startIdx, skip_post_match, next)
 end
 
 return Parser
