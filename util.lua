@@ -1,4 +1,5 @@
 function instanceOf(object, clazz)
+    if nil == object then return nil == clazz end
     local mt = getmetatable(object)
     while true do
         if mt == nil then return false end
