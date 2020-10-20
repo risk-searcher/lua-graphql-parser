@@ -16,7 +16,7 @@ end
 
 -- single thread only, need to update Lexer content
 function Lexer:getToken(index)
-    while index > #self.tokens or (self.curPos ~= nil and self.curPos < #self.text) do
+    while index > #self.tokens and (self.curPos ~= nil and self.curPos < #self.text) do
         local token, pos, err = self:nextToken(self.curPos)
         if err ~= nil then
             return nil, err
