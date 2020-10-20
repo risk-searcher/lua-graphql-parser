@@ -129,9 +129,4 @@ function Lexer:nextToken(startIdx)
     end
 end
 
-local lex = Lexer:new('hello abc"world\\" is big"2')
-local t1 = lex:getToken(1)
-local t2 = lex:getToken(4)
-print("haha")
-
 return Lexer
