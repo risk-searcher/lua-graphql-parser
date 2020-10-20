@@ -16,7 +16,7 @@ end
 
 -- single thread only, need to update Lexer content
 function Lexer:getToken(index)
-    while index > #self.tokens and (self.curPos ~= nil and self.curPos < #self.text) do
+    while index > #self.tokens and (self.curPos ~= nil and self.curPos <= #self.text) do
         local token, pos, err = self:nextToken(self.curPos)
         if err ~= nil then
             return nil, err
@@ -128,5 +128,10 @@ function Lexer:nextToken(startIdx)
         return text:sub(captureStart, #text), #text+1, nil
     end
 end
+
+local lex = Lexer:new('hello abc"world\\" is big"2')
+local t1 = lex:getToken(1)
+local t2 = lex:getToken(4)
+print("haha")
 
 return Lexer
