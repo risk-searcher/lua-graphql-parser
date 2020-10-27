@@ -93,7 +93,7 @@ arguments.post_match = sandwich_matcher
 local directive = P("^%@[%w_][%w_%d]*$") + arguments^"?"
 directive.post_match = function(self, result)
     local name = result:pop()
-    local obj = GqlNodes.directive:new{value=name}
+    local obj = GqlNodes.directive:new{name=name}
     local next = result:peek()
     if instanceOf(next, GqlNodes.arguments) then
         result:pop()
@@ -134,7 +134,7 @@ field.post_match = function(self, result)
     end
     if instanceOf(next, GqlNodes.selection_set) then
         result:pop()
-        obj.selection_set = next
+        obj.selection_set = next.value
     end
     return result:prepend(obj)
 end
@@ -156,7 +156,7 @@ end
 local fragment_spread = fragment_name + directive^"*"
 fragment_spread.post_match = function(self, result)
     local name = result:pop()
-    local obj = GqlNodes.fragment_spread:new{value=name}
+    local obj = GqlNodes.fragment_spread:new{fragment=name}
     local next = result:peek()
     while true do
         if instanceOf(next, GqlNodes.directive) then
@@ -198,7 +198,7 @@ local value_type = Parser.wrapper()
 local named_type = P("^[%w_][%w_%d]*$") -- don't write named_type=name, otherwise it will corrupt name
 named_type.post_match = function(self, result)
     local name = result:pop()
-    local obj = GqlNodes.named_type:new{value=name}
+    local obj = GqlNodes.named_type:new{name=name}
     return result:prepend(obj)
 end
 local list_type = '[' + value_type + ']'
@@ -223,15 +223,14 @@ end
 -- http://spec.graphql.org/June2018/#sec-Language.Variables
 local default_value = '=' + value
 default_value.post_match = function(self, result)
-    local node_type = GqlNodes.default_value
+    local obj = GqlNodes.default_value:new()
     local dummy = result:pop()
-    node_type.value = result:pop()
+    obj.value = result:pop()
     return result:prepend(obj)
 end
 local variable = P("^[%$%w]") + ":" + value_type + default_value^"?"
 variable.post_match = function(self, result)
-    local node_type = GqlNodes.variable
-    local obj = node_type:new()
+    local obj = GqlNodes.variable:new()
     obj.name = result:pop()
     result:pop()
     obj.type = result:pop()
@@ -249,28 +248,34 @@ variables.post_match = sandwich_matcher
 -- http://spec.graphql.org/June2018/#sec-Language.Operations
 local op_type = P("query") | "mutation" | "subscription"
 local op_definition = name + variables^"?"
-local operation = op_type + op_definition^"?" + directive^"*" + selection_set
+local operation = (op_type + op_definition^"?" + directive^"*")^"?" + selection_set
 operation.post_match = function(self, result)
     local obj = GqlNodes.operation:new()
-    obj.type = result:pop()
     local next = result:pop()
-    -- note, op_definition is a plain string token
-    if "string" == type(next) then
-        -- next is op_definition
-        obj.name = next
-        next = result:pop()
-        if instanceOf(next, GqlNodes.variables) then
-            obj.variables = next
+    if instanceOf(next, GqlNodes.selection_set) then
+        -- default query
+        obj.type = "query"
+    else
+        obj.type = next -- if it is not selection_set, then it must be the op_type
+        next = result:pop() -- next can be op_definition, directive, or selection_set
+        -- note, op_definition is a plain string token
+        if "string" == type(next) then
+            -- next is op_definition
+            obj.name = next
             next = result:pop()
+            if instanceOf(next, GqlNodes.variables) then
+                obj.variables = next.value
+                next = result:pop()
+            end
         end
-    end
-    while true do
-        if instanceOf(next, GqlNodes.directive) then
-            if nil == obj.directives then obj.directives = {} end
-            table.insert(obj.directives, next)
-            next = result:pop()
-        else
-            break
+        while true do
+            if instanceOf(next, GqlNodes.directive) then
+                if nil == obj.directives then obj.directives = {} end
+                table.insert(obj.directives, next)
+                next = result:pop()
+            else
+                break
+            end
         end
     end
     obj.selection_set = next.value
@@ -282,9 +287,9 @@ local fragment = P("fragment") + name + "on" + name + directive^"*" + selection_
 fragment.post_match = function(self, result)
     result:pop() -- fragment
     local name = result:pop()
-    result:pop() -- on
+    result:pop() -- "on"
     local on_name = result:pop()
-    local obj = GqlNodes.fragment:new{name=name, on=on_name}
+    local obj = GqlNodes.fragment:new{type="fragment", name=name, on=on_name}
     local next = result:pop()
     while true do
         if instanceOf(next, GqlNodes.directive) then
@@ -296,6 +301,7 @@ fragment.post_match = function(self, result)
         end
     end
     obj.selection_set = next.value
+    return result:prepend(obj)
 end
 
 local gql = (operation | fragment)^"+"
@@ -329,38 +335,40 @@ for k, v in pairs(Grammars) do
     Map[v] = tmp
 end
 
-local lex = Lexer:new([[
-mutation SendSms($phone: String!) {
-	sendSms(input: { phone: $phone }) {
-		viewer @skip(if: true) {
-			id
-			phoneConfirmed
-			phoneVerificationPending1
-			__typename
-		}
-		... on User {
-            hello
-            world
-        }
-		errors {
-			path
-			message
-			__typename
-		}
-		__typename
-	}
-}]])
+--local lex = Lexer:new([[
+--mutation SendSms($phone: String!) {
+--	sendSms(input: { phone: $phone }) {
+--		viewer @skip(if: true) {
+--			id
+--			phoneConfirmed
+--			phoneVerificationPending1
+--			__typename
+--		}
+--		... on User {
+--            hello
+--            world
+--        }
+--		errors {
+--			path
+--			message
+--			__typename
+--		}
+--		__typename
+--	}
+--}]])
+--
+--
+--local result = gql:match(lex, 1, false, nil)
+--
+----local lex = Lexer:new("($phone: [String!]!)")
+----local result = variables:match(lex, 1, false, nil)
+--
+--print(result)
+--print(result.consumed)
+--while true do
+--    local token = result:pop()
+--    if nil == token then break end
+--    print(inspect(token, {process=remove_all_metatables}))
+--end
 
-
-local result = gql:match(lex, 1, false, nil)
-
---local lex = Lexer:new("($phone: [String!]!)")
---local result = variables:match(lex, 1, false, nil)
-
-print(result)
-print(result.consumed)
-while true do
-    local token = result:pop()
-    if nil == token then break end
-    print(inspect(token, {process=remove_all_metatables}))
-end
+return gql
