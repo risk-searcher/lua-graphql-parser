@@ -1,64 +1,43 @@
 package.path = package.path .. ";../?.lua"
 
 local Lexer = require("lexer")
-local gql = require("graphql")
-local inspect = require('inspect')
-
-local remove_all_metatables = function(item, path)
-    if path[#path] ~= inspect.METATABLE then return item end
-end
-
-local my_clone
-my_clone = function(obj)
-    local clone = {}
-    for k, v in pairs(obj) do
-        if type(k) == "string" and string.match(k, "^__") then
-            -- do nothing
-        else
-            if type(v) == "table" then
-                clone[k] = my_clone(v)
-            else
-                clone[k] = v
-            end
-        end
-    end
-    return clone
-end
+local GqlParser = require("gql-parser")
+--local inspect = require('inspect')
 
 describe("Testing GraphQL Grammar", function()
 
     it("Test simple query", function()
         local lex = Lexer:new("query { me { name } }")
-        local expected = {list={
+        local expected = {
             [1] = {
                 type = "query",
-                selection_set = {
+                fields = {
                     [1] = {
                         name = "me",
-                        selection_set = {
+                        fields = {
                             { name = "name" }
                         }
                     }
                 }
             }
-        }}
-        local matcher = gql:match(lex, 1, false, nil)
-        local result = my_clone(matcher:pop())
+        }
+        local p = GqlParser:new()
+        local result = p:parse(lex)
         assert.are.same(expected, result)
     end)
 
     it("Test arguments", function()
         local lex = Lexer:new("{human(id: 1000) { name, height(unit: FOOT)}}")
-        local expected = {list={
+        local expected = {
             [1] = {
                 type = "query",
-                selection_set = {
+                fields = {
                     [1] = {
                         name = "human",
                         arguments = {
                             { name = "id", value = "1000" }
                         },
-                        selection_set = {
+                        fields = {
                             {
                                 name = "name"
                             },
@@ -72,25 +51,25 @@ describe("Testing GraphQL Grammar", function()
                     }
                 }
             }
-        }}
-        local matcher = gql:match(lex, 1, false, nil)
-        local result = my_clone(matcher:pop())
+        }
+        local p = GqlParser:new()
+        local result = p:parse(lex)
         assert.are.same(expected, result)
     end)
 
     it("Test aliases", function()
         local lex = Lexer:new("{ empireHero: hero(episode: EMPIRE) {name} jediHero: hero(episode: JEDI) { name } }")
-        local expected = {list={
+        local expected = {
             [1] = {
                 type = "query",
-                selection_set = {
+                fields = {
                     [1] = {
                         alias = "empireHero",
                         name = "hero",
                         arguments = {
                             { name = "episode", value = "EMPIRE" }
                         },
-                        selection_set = {
+                        fields = {
                             { name = "name" }
                         }
                     },
@@ -100,15 +79,15 @@ describe("Testing GraphQL Grammar", function()
                         arguments = {
                             { name = "episode", value = "JEDI" }
                         },
-                        selection_set = {
+                        fields = {
                             { name = "name" }
                         }
                     }
                 }
             }
-        }}
-        local matcher = gql:match(lex, 1, false, nil)
-        local result = my_clone(matcher:pop())
+        }
+        local p = GqlParser:new()
+        local result = p:parse(lex)
         assert.are.same(expected, result)
     end)
 
@@ -130,18 +109,18 @@ describe("Testing GraphQL Grammar", function()
                 name
             }
         }]])
-        local expected = {list={
+        local expected = {
             [1] = {
                 type = "query",
-                selection_set = {
+                fields = {
                     [1] = {
                         alias = "leftComparison",
                         name = "hero",
                         arguments = {
                             { name = "episode", value = "EMPIRE" }
                         },
-                        selection_set = {
-                            { fragment = "...comparisonFields" }
+                        fields = {
+                            { fragment = "comparisonFields" }
                         }
                     },
                     [2] = {
@@ -150,17 +129,16 @@ describe("Testing GraphQL Grammar", function()
                         arguments = {
                             { name = "episode", value = "JEDI" }
                         },
-                        selection_set = {
-                            { fragment = "...comparisonFields" }
+                        fields = {
+                            { fragment = "comparisonFields" }
                         }
                     }
                 }
             },
             [2] = {
-                type = "fragment",
-                name = "comparisonFields",
+                fragment = "comparisonFields",
                 on = "Character",
-                selection_set = {
+                fields = {
                     [1] = {
                         name = "name",
                     },
@@ -169,7 +147,7 @@ describe("Testing GraphQL Grammar", function()
                     },
                     [3] = {
                         name = "friends",
-                        selection_set = {
+                        fields = {
                             [1] = {
                                 name = "name"
                             }
@@ -177,10 +155,9 @@ describe("Testing GraphQL Grammar", function()
                     }
                 }
             }
-        }}
-        local matcher = gql:match(lex, 1, false, nil)
-        local result = my_clone(matcher:pop())
-        --print(inspect(result, {process=remove_all_metatables}))
+        }
+        local p = GqlParser:new()
+        local result = p:parse(lex)
         assert.are.same(expected, result)
     end)
 
@@ -195,7 +172,7 @@ describe("Testing GraphQL Grammar", function()
               }
             }
         ]])
-        local expected = {list={
+        local expected = {
             [1] = {
                 type = "query",
                 name = "HeroNameAndFriends",
@@ -205,17 +182,17 @@ describe("Testing GraphQL Grammar", function()
                         type = { name = "Episode" }
                     }
                 },
-                selection_set = {
+                fields = {
                     [1] = {
                         name = "hero",
                         arguments = {
                             { name = "episode", value = "$episode" }
                         },
-                        selection_set = {
+                        fields = {
                             [1] = { name = "name"},
                             [2] = {
                                 name = "friends",
-                                selection_set = {
+                                fields = {
                                     [1] = { name = "name"}
                                 }
                             }
@@ -223,11 +200,9 @@ describe("Testing GraphQL Grammar", function()
                     }
                 }
             }
-        }}
-        local matcher = gql:match(lex, 1, false, nil)
-        local result = my_clone(matcher:pop())
-        --print(inspect(result.list[1].variables, {process=remove_all_metatables}))
-        --print(inspect(expected.list[1].variables, {process=remove_all_metatables}))
+        }
+        local p = GqlParser:new()
+        local result = p:parse(lex)
         assert.are.same(expected, result)
     end)
 
@@ -242,7 +217,7 @@ describe("Testing GraphQL Grammar", function()
               }
             }
         ]])
-        local expected = {list={
+        local expected = {
             [1] = {
                 type = "query",
                 name = "HeroNameAndFriends",
@@ -253,17 +228,17 @@ describe("Testing GraphQL Grammar", function()
                         default_value = "JEDI"
                     }
                 },
-                selection_set = {
+                fields = {
                     [1] = {
                         name = "hero",
                         arguments = {
                             { name = "episode", value = "$episode" }
                         },
-                        selection_set = {
+                        fields = {
                             [1] = { name = "name"},
                             [2] = {
                                 name = "friends",
-                                selection_set = {
+                                fields = {
                                     [1] = { name = "name"}
                                 }
                             }
@@ -271,11 +246,9 @@ describe("Testing GraphQL Grammar", function()
                     }
                 }
             }
-        }}
-        local matcher = gql:match(lex, 1, false, nil)
-        local result = my_clone(matcher:pop())
-        --print(inspect(result.list[1].variables, {process=remove_all_metatables}))
-        --print(inspect(expected.list[1].variables, {process=remove_all_metatables}))
+        }
+        local p = GqlParser:new()
+        local result = p:parse(lex)
         assert.are.same(expected, result)
     end)
 
@@ -290,7 +263,7 @@ describe("Testing GraphQL Grammar", function()
               }
             }
         ]])
-        local expected = {list={
+        local expected = {
             [1] = {
                 type = "query",
                 name = "Hero",
@@ -304,13 +277,13 @@ describe("Testing GraphQL Grammar", function()
                         type = { name = "Boolean", non_null = true }
                     }
                 },
-                selection_set = {
+                fields = {
                     [1] = {
                         name = "hero",
                         arguments = {
                             { name = "episode", value = "$episode" }
                         },
-                        selection_set = {
+                        fields = {
                             [1] = { name = "name"},
                             [2] = {
                                 name = "friends",
@@ -322,7 +295,7 @@ describe("Testing GraphQL Grammar", function()
                                         }
                                     }
                                 },
-                                selection_set = {
+                                fields = {
                                     [1] = { name = "name"}
                                 }
                             }
@@ -330,11 +303,9 @@ describe("Testing GraphQL Grammar", function()
                     }
                 }
             }
-        }}
-        local matcher = gql:match(lex, 1, false, nil)
-        local result = my_clone(matcher:pop())
-        --print(inspect(result.list[1].selection_set, {process=remove_all_metatables}))
-        --print(inspect(expected.list[1].selection_set, {process=remove_all_metatables}))
+        }
+        local p = GqlParser:new()
+        local result = p:parse(lex)
         assert.are.same(expected, result)
     end)
 
@@ -347,7 +318,7 @@ describe("Testing GraphQL Grammar", function()
               }
             }
         ]])
-        local expected = {list={
+        local expected = {
             [1] = {
                 type = "mutation",
                 name = "CreateReviewForEpisode",
@@ -361,25 +332,23 @@ describe("Testing GraphQL Grammar", function()
                         type = { name = "ReviewInput", non_null = true }
                     }
                 },
-                selection_set = {
+                fields = {
                     [1] = {
                         name = "createReview",
                         arguments = {
                             { name = "episode", value = "$ep" },
                             { name = "review", value = "$review"}
                         },
-                        selection_set = {
+                        fields = {
                             [1] = { name = "stars"},
                             [2] = { name = "commentary" }
                         }
                     }
                 }
             }
-        }}
-        local matcher = gql:match(lex, 1, false, nil)
-        local result = my_clone(matcher:pop())
-        --print(inspect(result.list[1].selection_set, {process=remove_all_metatables}))
-        --print(inspect(expected.list[1].selection_set, {process=remove_all_metatables}))
+        }
+        local p = GqlParser:new()
+        local result = p:parse(lex)
         assert.are.same(expected, result)
     end)
 
@@ -397,7 +366,7 @@ describe("Testing GraphQL Grammar", function()
               }
             }
         ]])
-        local expected = {list={
+        local expected = {
             [1] = {
                 type = "query",
                 name = "HeroForEpisode",
@@ -407,23 +376,23 @@ describe("Testing GraphQL Grammar", function()
                         type = { name = "Episode", non_null = true }
                     }
                 },
-                selection_set = {
+                fields = {
                     [1] = {
                         name = "hero",
                         arguments = {
                             { name = "episode", value = "$ep" }
                         },
-                        selection_set = {
+                        fields = {
                             [1] = { name = "name" },
                             [2] = {
                                 on = "Droid",
-                                selection_set = {
+                                fields = {
                                     [1] = { name = "primaryFunction" }
                                 }
                             },
                             [3] = {
                                 on = "Human",
-                                selection_set = {
+                                fields = {
                                     [1] = { name = "height" }
                                 }
                             }
@@ -431,11 +400,9 @@ describe("Testing GraphQL Grammar", function()
                     }
                 }
             }
-        }}
-        local matcher = gql:match(lex, 1, false, nil)
-        local result = my_clone(matcher:pop())
-        --print(inspect(result.list[1].selection_set, {process=remove_all_metatables}))
-        --print(inspect(expected.list[1].selection_set, {process=remove_all_metatables}))
+        }
+        local p = GqlParser:new()
+        local result = p:parse(lex)
         assert.are.same(expected, result)
     end)
 end)
