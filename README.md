@@ -1,6 +1,13 @@
 # lua-graphql-parser
 A graphQL parser combinator implemented in Lua
 
+# How to test
+
+```shell script
+$ busted -c test/*
+$ luacov -c luacov.cfg
+```
+
 
 # Design Philosophy
 
@@ -17,7 +24,7 @@ Parser statement2 = ParserX + number + ParserY
 
 In the above snippet, if we change the content of `number` in `statement2`, it will affect `statement1` as well.
 
-In our implementation, `GroupParser` is used to group two (only two because it is immutable) into one single item.
+In our implementation, `AndParser|OrParser` are used to group two (only two because it is immutable) into one single item.
 
 When matching the content, especially for `OrParser` or `RepetitionParser`, there can be more than 1 possible match. There are two solutions to this problem
 

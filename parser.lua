@@ -162,7 +162,7 @@ function Parser.__pow(lhs, rhs)
 end
 
 -- ==============================================
--- ParserLinkList an immutable LinkList (i.e. con-list)
+-- ParserLinkList an immutable LinkList (i.e. constant-list)
 -- ==============================================
 local ParserLinkList = Clazz.class("ParserLinkList", Parser)
 

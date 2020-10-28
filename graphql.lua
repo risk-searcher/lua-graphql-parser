@@ -335,40 +335,4 @@ for k, v in pairs(Grammars) do
     Map[v] = tmp
 end
 
---local lex = Lexer:new([[
---mutation SendSms($phone: String!) {
---	sendSms(input: { phone: $phone }) {
---		viewer @skip(if: true) {
---			id
---			phoneConfirmed
---			phoneVerificationPending1
---			__typename
---		}
---		... on User {
---            hello
---            world
---        }
---		errors {
---			path
---			message
---			__typename
---		}
---		__typename
---	}
---}]])
---
---
---local result = gql:match(lex, 1, false, nil)
---
-----local lex = Lexer:new("($phone: [String!]!)")
-----local result = variables:match(lex, 1, false, nil)
---
---print(result)
---print(result.consumed)
---while true do
---    local token = result:pop()
---    if nil == token then break end
---    print(inspect(token, {process=remove_all_metatables}))
---end
-
 return gql
