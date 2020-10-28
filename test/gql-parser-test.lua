@@ -405,4 +405,93 @@ describe("Testing GraphQL Grammar", function()
         local result = p:parse(lex)
         assert.are.same(expected, result)
     end)
+
+    it("Test object value", function()
+        local lex = Lexer:new([[
+            query foobar($name: String!) {
+              station(input: {name: $name, age: 10}) {
+                name
+                height
+              }
+            }
+        ]])
+        local expected = {
+            [1] = {
+                type = "query",
+                name = "foobar",
+                variables = {
+                    [1] = {
+                        name = "$name",
+                        type = { name = "String", non_null = true }
+                    }
+                },
+                fields = {
+                    [1] = {
+                        name = "station",
+                        arguments = {
+                            [1] = {
+                                name = "input",
+                                value = {
+                                    { name = "name", value ="$name" },
+                                    { name = "age", value = "10" }
+                                }
+                            }
+                        },
+                        fields = {
+                            [1] = { name = "name" },
+                            [2] = { name = "height" }
+                        }
+                    }
+                }
+            }
+        }
+        local p = GqlParser:new()
+        local result = p:parse(lex)
+        assert.are.same(expected, result)
+    end)
+
+    it("Test array value", function()
+        local lex = Lexer:new([[
+            query foobar($name1: String!, $name2: String!) {
+              station(input: [$name1, $name2]) {
+                name
+                height
+              }
+            }
+        ]])
+        local expected = {
+            [1] = {
+                type = "query",
+                name = "foobar",
+                variables = {
+                    [1] = {
+                        name = "$name1",
+                        type = { name = "String", non_null = true }
+                    },
+                    [2] = {
+                        name = "$name2",
+                        type = { name = "String", non_null = true }
+                    }
+                },
+                fields = {
+                    [1] = {
+                        name = "station",
+                        arguments = {
+                            [1] = {
+                                name = "input",
+                                value = { "$name1", "$name2" }
+                            }
+                        },
+                        fields = {
+                            [1] = { name = "name" },
+                            [2] = { name = "height" }
+                        }
+                    }
+                }
+            }
+        }
+        local p = GqlParser:new()
+        local result = p:parse(lex)
+        assert.are.same(expected, result)
+    end)
 end)

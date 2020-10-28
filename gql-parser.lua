@@ -253,12 +253,36 @@ function GqlParser:read_value()
     end
 end
 
-function GqlParser:read_object(obj)
-    -- TODO
+function GqlParser:read_object()
+    local list = {}
+    while true do
+        local token = self:getToken()
+        if token and string.match(token, NAME_PATTERN) then
+            local field = { name = token }
+            if ':' ~= self:getToken() then
+                self:error("expecting ':'")
+            end
+            field.value = self:read_value()
+            table.insert(list, field)
+        elseif '}' == token then
+            return list
+        else
+            self:error("expecting a object key name or '}'")
+        end
+    end
 end
 
-function GqlParser:read_array(array)
-    -- TODO
+function GqlParser:read_array()
+    local list = {}
+    while true do
+        if ']' == self:peekToken() then
+            self:move()
+            return list
+        else
+            local value = self:read_value()
+            table.insert(list, value)
+        end
+    end
 end
 
 function GqlParser:error(msg)
