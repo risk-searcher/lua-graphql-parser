@@ -29,11 +29,62 @@ describe("Testing Lexer", function()
         assert.are.same(lex:getToken(4), "2")
     end)
 
-    it("Quoted String", function()
+    it("Block String1", function()
         local lex = Lexer:new('hello """world\r\n123 Haha\t\r\n""" c')
         assert.are.same(lex:getToken(1), "hello")
         --assert.are.same(lex:getToken(2), '"""world\r\n123 Haha\t\r\n"""')
         assert.are.same(lex:getToken(3), 'c')
     end)
 
+    it("Block String2", function()
+        local lex = Lexer:new('hello """world \\"\\"world""" c')
+        assert.are.same(lex:getToken(1), "hello")
+        --assert.are.same(lex:getToken(2), '"""world\r\n123 Haha\t\r\n"""')
+        assert.are.same(lex:getToken(3), 'c')
+    end)
+
+    it("Comment1", function()
+        local lex = Lexer:new([[
+        hello 1 #2
+        world {
+        #}
+        @
+        ]])
+        assert.are.same(lex:getToken(1), "hello")
+        assert.are.same(lex:getToken(2), '1')
+        assert.are.same(lex:getToken(3), 'world')
+        assert.are.same(lex:getToken(4), '{')
+        assert.are.same(lex:getToken(5), '@')
+    end)
+
+    it("Comment2", function()
+        local lex = Lexer:new([[
+        hello 1 #2
+        world#12]])
+        assert.are.same(lex:getToken(1), "hello")
+        assert.are.same(lex:getToken(2), '1')
+        assert.are.same(lex:getToken(3), 'world')
+        assert.are.same(lex:getToken(4), nil)
+    end)
+
+    it("Comment3", function()
+        local lex = Lexer:new([[
+        hello 1 #2
+        world#12
+        34]])
+        assert.are.same(lex:getToken(1), "hello")
+        assert.are.same(lex:getToken(2), '1')
+        assert.are.same(lex:getToken(3), 'world')
+        assert.are.same(lex:getToken(4), '34')
+    end)
+
+    it("Comment4", function()
+        local lex = Lexer:new([[
+        hello 1 #2
+        world #12]])
+        assert.are.same(lex:getToken(1), "hello")
+        assert.are.same(lex:getToken(2), '1')
+        assert.are.same(lex:getToken(3), 'world')
+        assert.are.same(lex:getToken(4), nil)
+    end)
 end)

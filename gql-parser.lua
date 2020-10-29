@@ -288,10 +288,19 @@ end
 function GqlParser:error(msg)
     -- TODO
     local s = nil
-    if self.idx > 1 then
-        s = 'around token ' .. tostring(self.idx) .. ' "' .. self.lex:getToken(self.idx-1) .. ' ' .. self:peekToken() .. '" ' .. msg
-    else
-        s = 'around token ' .. tostring(self.idx) .. ' "' .. self:peekToken() .. ' ' .. msg
+    local i = self.idx-1
+    if i == 0 then
+        s = 'looks like an empty input: ' .. msg
+    elseif i == 1 then
+        s = "at token[1] '" .. tostring(self.lex:getToken(i)) .. "'" .. msg
+    else -- i > 1
+        local thisToken = self.lex:getToken(i)
+        local lastToken = self.lex:getToken(i-1)
+        if thisToken then
+            s = "after token[" .. tostring(i-1) .. "] '" .. tostring(lastToken) .. "' is '" .. tostring(thisToken) .. "': " .. msg
+        else -- thisToken is nil
+            s = "after token[" .. tostring(i-1) .. "] '" .. tostring(lastToken) .. "' is EOF: " .. msg
+        end
     end
     error(s)
 end

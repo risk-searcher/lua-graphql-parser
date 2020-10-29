@@ -90,9 +90,9 @@ function Lexer:nextToken(startIdx)
                 local xstart, xend = string.find(text, "[\r\n]", i, false)
                 if captureStart > 0 then
                     if nil == xstart then
-                        return text:sub(captureStart, i), #text+1, nil
+                        return text:sub(captureStart, i-1), #text+1, nil
                     else
-                        return text:sub(captureStart, i), xstart+1, nil
+                        return text:sub(captureStart, i-1), xstart+1, nil
                     end
                 else
                     if nil == xstart then
