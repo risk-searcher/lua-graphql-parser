@@ -5,7 +5,7 @@ dist: bionic
 jobs:
   include:
     - name: Lua 5.1
-      env: LUA_APT=5.1
+      env: LUA_APT=lua5.1
 
 before_install:
   - sudo apt-get update
