@@ -223,7 +223,7 @@ end
 function GqlParser:read_var_type(type, allow_array)
     local token = self:getToken()
     if '[' == token then
-        if ~allow_array then
+        if not allow_array then
             self:error("nested array in type definition is not allowed")
         end
         type.is_array = true

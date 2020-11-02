@@ -1,0 +1,15 @@
+# .travis.yml
+
+dist: bionic
+
+jobs:
+  include:
+    - name: Lua 5.1
+      env: LUA_APT=5.1
+
+install:
+  - apt update & apt install -y $LUA_APT luarocks & luarocks install busted & luarocks install luacov
+
+script:
+  - busted -c test/*
+  - luacov -cluacov.cfg
