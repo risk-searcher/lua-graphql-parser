@@ -24,7 +24,7 @@ local expected = {
 }
 ```
 
-All language according to http://spec.graphql.org/June2018/ should be implemented.
+All language according to http://spec.graphql.org/June2018/ should have been implemented.
 
 # How to test
 
