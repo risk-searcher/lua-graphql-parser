@@ -6,6 +6,10 @@ jobs:
   include:
     - name: Lua 5.1
       env: LUA_APT=lua5.1
+    - name: Lua 5.2
+      env: LUA_APT=lua5.2
+    - name: Lua 5.3
+      env: LUA_APT=lua5.3
 
 before_install:
   - sudo apt-get update
