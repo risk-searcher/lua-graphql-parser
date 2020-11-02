@@ -1,4 +1,5 @@
 local Clazz = require("clazz")
+local Lexer = require("lexer")
 
 local NAME_PATTERN = "^[%w_][%w%d_]*$"
 local VARIABLE_PATTERN = "^$?[%w_][%w%d_]*$"
@@ -21,9 +22,13 @@ function GqlParser:move()
     self.idx = self.idx+1
 end
 
-function GqlParser:parse(lexer)
-    self.lex = lexer
+function GqlParser:parse(input)
+    self.lex = Lexer:new(input)
     self.idx = 1
+    return self:_parse()
+end
+
+function GqlParser:_parse()
     local list = {}
     while true do
         local token = self:getToken()

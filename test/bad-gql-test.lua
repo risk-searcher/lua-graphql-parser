@@ -1,6 +1,5 @@
 package.path = package.path .. ";../?.lua"
 
-local Lexer = require("lexer")
 local GqlParser = require("gql-parser")
 --local inspect = require('inspect')
 
@@ -33,96 +32,96 @@ assert:register("assertion", "has_perror", has_perror, "assertion.has_perror.pos
 describe("Testing GraphQL Grammar", function()
 
     it("Test unbalanced brace", function()
-        local lex = Lexer:new("query { me { name } ")
+        local input = "query { me { name } "
         local p = GqlParser:new()
-        assert.has_perror("after token[6]", function () p:parse(lex) end)
+        assert.has_perror("after token[6]", function () p:parse(input) end)
     end)
 
     it("Test invalid (", function()
-        local lex = Lexer:new("query { me { ( name } }")
+        local input = "query { me { ( name } }"
         local p = GqlParser:new()
-        assert.has_perror("after token[4]", function () p:parse(lex) end)
+        assert.has_perror("after token[4]", function () p:parse(input) end)
     end)
 
     it("Test invalid )", function()
-        local lex = Lexer:new("query { me { )name } }")
+        local input = "query { me { )name } }"
         local p = GqlParser:new()
-        assert.has_perror("after token[4]", function () p:parse(lex) end)
+        assert.has_perror("after token[4]", function () p:parse(input) end)
     end)
 
     it("Test type", function()
-        local lex = Lexer:new("queries { me { name } }")
+        local input = "queries { me { name } }"
         local p = GqlParser:new()
-        assert.has_perror("at token[1]", function () p:parse(lex) end)
+        assert.has_perror("at token[1]", function () p:parse(input) end)
     end)
 
     it("Test missing ':'", function()
-        local lex = Lexer:new([[
+        local input = [[
             query foobar($name1 String!, $name2: String!) {
               station(input: [$name1, $name2]) {
                 name
                 height
               }
             }
-        ]])
+        ]]
         local p = GqlParser:new()
-        assert.has_perror("after token[4]", function () p:parse(lex) end)
+        assert.has_perror("after token[4]", function () p:parse(input) end)
     end)
 
     it("Test missing ':'", function()
-        local lex = Lexer:new([[
+        local input = [[
             query foobar [
               station(input: [$name1, $name2]) {
                 name
                 height
               }
             }
-        ]])
+        ]]
         local p = GqlParser:new()
-        assert.has_perror("after token[2]", function () p:parse(lex) end)
+        assert.has_perror("after token[2]", function () p:parse(input) end)
     end)
 
     it("Test invalid field name", function()
-        local lex = Lexer:new([[
+        local input = [[
             query foobar($name1: String!, $name2: String!) {
               station(input: [$name1, $name2]) {
                 $name
                 height
               }
             }
-        ]])
+        ]]
         local p = GqlParser:new()
-        assert.has_perror("after token[23]", function () p:parse(lex) end)
+        assert.has_perror("after token[23]", function () p:parse(input) end)
     end)
 
     it("Test invalid field name", function()
-        local lex = Lexer:new([[
+        local input = [[
             query foobar($name1: String!, $name2: String!) {
               station(input: [$name1, $name2]) {
                 name.2
                 height
               }
             }
-        ]])
+        ]]
         local p = GqlParser:new()
-        assert.has_perror("after token[23]", function () p:parse(lex) end)
+        assert.has_perror("after token[23]", function () p:parse(input) end)
     end)
 
     it("Test invalid object key name", function()
-        local lex = Lexer:new([[
+        local input = [[
             query foobar($name1: String!, $name2: String!) {
               station(input: {$name1, $name2}) {
                 name
                 height
               }
             }
-        ]])
+        ]]
         local p = GqlParser:new()
-        assert.has_perror("after token[18]", function () p:parse(lex) end)
+        assert.has_perror("after token[18]", function () p:parse(input) end)
     end)
 
     it("Test invalid fragment", function()
-        local lex = Lexer:new([[
+        local input = [[
             {
                 leftComparison: hero(episode: EMPIRE) {
                     ...comparisonFields
@@ -132,13 +131,13 @@ describe("Testing GraphQL Grammar", function()
             fragment comparisonFields in Character {
                 name
             }
-        ]])
+        ]]
         local p = GqlParser:new()
-        assert.has_perror("after token[15]", function () p:parse(lex) end)
+        assert.has_perror("after token[15]", function () p:parse(input) end)
     end)
 
     it("Test invalid fragment", function()
-        local lex = Lexer:new([[
+        local input = [[
             {
                 leftComparison: hero(episode: EMPIRE) {
                     ...comparisonFields
@@ -148,8 +147,8 @@ describe("Testing GraphQL Grammar", function()
             fragment on on Character {
                 name
             }
-        ]])
+        ]]
         local p = GqlParser:new()
-        assert.has_perror("after token[14]", function () p:parse(lex) end)
+        assert.has_perror("after token[14]", function () p:parse(input) end)
     end)
 end)

@@ -1,13 +1,12 @@
 package.path = package.path .. ";../?.lua"
 
-local Lexer = require("lexer")
 local GqlParser = require("gql-parser")
 --local inspect = require('inspect')
 
 describe("Testing GraphQL Grammar", function()
 
     it("Test simple query", function()
-        local lex = Lexer:new("query { me { name } }")
+        local input = "query { me { name } }"
         local expected = {
             [1] = {
                 type = "query",
@@ -22,12 +21,12 @@ describe("Testing GraphQL Grammar", function()
             }
         }
         local p = GqlParser:new()
-        local result = p:parse(lex)
+        local result = p:parse(input)
         assert.are.same(expected, result)
     end)
 
     it("Test arguments", function()
-        local lex = Lexer:new("{human(id: 1000) { name, height(unit: FOOT)}}")
+        local input = "{human(id: 1000) { name, height(unit: FOOT)}}"
         local expected = {
             [1] = {
                 type = "query",
@@ -53,12 +52,12 @@ describe("Testing GraphQL Grammar", function()
             }
         }
         local p = GqlParser:new()
-        local result = p:parse(lex)
+        local result = p:parse(input)
         assert.are.same(expected, result)
     end)
 
     it("Test aliases", function()
-        local lex = Lexer:new("{ empireHero: hero(episode: EMPIRE) {name} jediHero: hero(episode: JEDI) { name } }")
+        local input = "{ empireHero: hero(episode: EMPIRE) {name} jediHero: hero(episode: JEDI) { name } }"
         local expected = {
             [1] = {
                 type = "query",
@@ -87,12 +86,12 @@ describe("Testing GraphQL Grammar", function()
             }
         }
         local p = GqlParser:new()
-        local result = p:parse(lex)
+        local result = p:parse(input)
         assert.are.same(expected, result)
     end)
 
     it("Test fragments", function()
-        local lex = Lexer:new([[
+        local input = [[
         {
             leftComparison: hero(episode: EMPIRE) {
                 ...comparisonFields
@@ -108,7 +107,7 @@ describe("Testing GraphQL Grammar", function()
             friends {
                 name
             }
-        }]])
+        }]]
         local expected = {
             [1] = {
                 type = "query",
@@ -157,12 +156,12 @@ describe("Testing GraphQL Grammar", function()
             }
         }
         local p = GqlParser:new()
-        local result = p:parse(lex)
+        local result = p:parse(input)
         assert.are.same(expected, result)
     end)
 
     it("Test operation", function()
-        local lex = Lexer:new([[
+        local input = [[
             query HeroNameAndFriends($episode: Episode) {
               hero(episode: $episode) {
                 name
@@ -171,7 +170,7 @@ describe("Testing GraphQL Grammar", function()
                 }
               }
             }
-        ]])
+        ]]
         local expected = {
             [1] = {
                 type = "query",
@@ -202,12 +201,12 @@ describe("Testing GraphQL Grammar", function()
             }
         }
         local p = GqlParser:new()
-        local result = p:parse(lex)
+        local result = p:parse(input)
         assert.are.same(expected, result)
     end)
 
     it("Test default variables", function()
-        local lex = Lexer:new([[
+        local input = [[
             query HeroNameAndFriends($episode: Episode = JEDI) {
               hero(episode: $episode) {
                 name
@@ -216,7 +215,7 @@ describe("Testing GraphQL Grammar", function()
                 }
               }
             }
-        ]])
+        ]]
         local expected = {
             [1] = {
                 type = "query",
@@ -248,12 +247,12 @@ describe("Testing GraphQL Grammar", function()
             }
         }
         local p = GqlParser:new()
-        local result = p:parse(lex)
+        local result = p:parse(input)
         assert.are.same(expected, result)
     end)
 
     it("Test directives", function()
-        local lex = Lexer:new([[
+        local input = [[
             query Hero($episode: Episode, $withFriends: Boolean!) {
               hero(episode: $episode) {
                 name
@@ -262,7 +261,7 @@ describe("Testing GraphQL Grammar", function()
                 }
               }
             }
-        ]])
+        ]]
         local expected = {
             [1] = {
                 type = "query",
@@ -305,19 +304,19 @@ describe("Testing GraphQL Grammar", function()
             }
         }
         local p = GqlParser:new()
-        local result = p:parse(lex)
+        local result = p:parse(input)
         assert.are.same(expected, result)
     end)
 
     it("Test mutations", function()
-        local lex = Lexer:new([[
+        local input = [[
             mutation CreateReviewForEpisode($ep: Episode!, $review: ReviewInput!) {
               createReview(episode: $ep, review: $review) {
                 stars
                 commentary
               }
             }
-        ]])
+        ]]
         local expected = {
             [1] = {
                 type = "mutation",
@@ -348,12 +347,12 @@ describe("Testing GraphQL Grammar", function()
             }
         }
         local p = GqlParser:new()
-        local result = p:parse(lex)
+        local result = p:parse(input)
         assert.are.same(expected, result)
     end)
 
     it("Test inline fragment", function()
-        local lex = Lexer:new([[
+        local input = [[
             query HeroForEpisode($ep: Episode!) {
               hero(episode: $ep) {
                 name
@@ -365,7 +364,7 @@ describe("Testing GraphQL Grammar", function()
                 }
               }
             }
-        ]])
+        ]]
         local expected = {
             [1] = {
                 type = "query",
@@ -402,19 +401,19 @@ describe("Testing GraphQL Grammar", function()
             }
         }
         local p = GqlParser:new()
-        local result = p:parse(lex)
+        local result = p:parse(input)
         assert.are.same(expected, result)
     end)
 
     it("Test object value", function()
-        local lex = Lexer:new([[
+        local input = [[
             query foobar($name: String!) {
               station(input: {name: $name, age: 10}) {
                 name
                 height
               }
             }
-        ]])
+        ]]
         local expected = {
             [1] = {
                 type = "query",
@@ -446,19 +445,19 @@ describe("Testing GraphQL Grammar", function()
             }
         }
         local p = GqlParser:new()
-        local result = p:parse(lex)
+        local result = p:parse(input)
         assert.are.same(expected, result)
     end)
 
     it("Test array value", function()
-        local lex = Lexer:new([[
+        local input = [[
             query foobar($name1: String!, $name2: String!) {
               station(input: [$name1, $name2]) {
                 name
                 height
               }
             }
-        ]])
+        ]]
         local expected = {
             [1] = {
                 type = "query",
@@ -491,7 +490,7 @@ describe("Testing GraphQL Grammar", function()
             }
         }
         local p = GqlParser:new()
-        local result = p:parse(lex)
+        local result = p:parse(input)
         assert.are.same(expected, result)
     end)
 end)
