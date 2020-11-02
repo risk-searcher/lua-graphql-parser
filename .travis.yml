@@ -1,5 +1,5 @@
 # .travis.yml
-
+language: cpp
 dist: bionic
 
 jobs:
