@@ -7,8 +7,12 @@ jobs:
     - name: Lua 5.1
       env: LUA_APT=5.1
 
+before_install:
+  - sudo apt-get update
+  - sudo apt-get -y install $LUA_APT luarocks
+
 install:
-  - apt update & apt install -y $LUA_APT luarocks & luarocks install busted & luarocks install luacov
+  - luarocks install busted & luarocks install luacov
 
 script:
   - busted -c test/*
