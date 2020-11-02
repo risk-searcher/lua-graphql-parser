@@ -12,7 +12,8 @@ before_install:
   - sudo apt-get -y install $LUA_APT luarocks
 
 install:
-  - luarocks install busted & luarocks install luacov
+  - sudo luarocks install busted
+  - sudo luarocks install luacov
 
 script:
   - busted -c test/*
