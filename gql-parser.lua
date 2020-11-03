@@ -22,8 +22,8 @@ function GqlParser:move()
     self.idx = self.idx+1
 end
 
-function GqlParser:parse(input)
-    self.lex = Lexer:new(input)
+function GqlParser:parse(query)
+    self.lex = Lexer:new(query)
     self.idx = 1
     return self:_parse()
 end

@@ -32,31 +32,31 @@ assert:register("assertion", "has_perror", has_perror, "assertion.has_perror.pos
 describe("Testing GraphQL Grammar", function()
 
     it("Test unbalanced brace", function()
-        local input = "query { me { name } "
+        local query = "query { me { name } "
         local p = GqlParser:new()
-        assert.has_perror("after token[6]", function () p:parse(input) end)
+        assert.has_perror("after token[6]", function () p:parse(query) end)
     end)
 
     it("Test invalid (", function()
-        local input = "query { me { ( name } }"
+        local query = "query { me { ( name } }"
         local p = GqlParser:new()
-        assert.has_perror("after token[4]", function () p:parse(input) end)
+        assert.has_perror("after token[4]", function () p:parse(query) end)
     end)
 
     it("Test invalid )", function()
-        local input = "query { me { )name } }"
+        local query = "query { me { )name } }"
         local p = GqlParser:new()
-        assert.has_perror("after token[4]", function () p:parse(input) end)
+        assert.has_perror("after token[4]", function () p:parse(query) end)
     end)
 
     it("Test type", function()
-        local input = "queries { me { name } }"
+        local query = "queries { me { name } }"
         local p = GqlParser:new()
-        assert.has_perror("at token[1]", function () p:parse(input) end)
+        assert.has_perror("at token[1]", function () p:parse(query) end)
     end)
 
     it("Test missing ':'", function()
-        local input = [[
+        local query = [[
             query foobar($name1 String!, $name2: String!) {
               station(input: [$name1, $name2]) {
                 name
@@ -65,11 +65,11 @@ describe("Testing GraphQL Grammar", function()
             }
         ]]
         local p = GqlParser:new()
-        assert.has_perror("after token[4]", function () p:parse(input) end)
+        assert.has_perror("after token[4]", function () p:parse(query) end)
     end)
 
     it("Test missing ':'", function()
-        local input = [[
+        local query = [[
             query foobar [
               station(input: [$name1, $name2]) {
                 name
@@ -78,11 +78,11 @@ describe("Testing GraphQL Grammar", function()
             }
         ]]
         local p = GqlParser:new()
-        assert.has_perror("after token[2]", function () p:parse(input) end)
+        assert.has_perror("after token[2]", function () p:parse(query) end)
     end)
 
     it("Test invalid field name", function()
-        local input = [[
+        local query = [[
             query foobar($name1: String!, $name2: String!) {
               station(input: [$name1, $name2]) {
                 $name
@@ -91,11 +91,11 @@ describe("Testing GraphQL Grammar", function()
             }
         ]]
         local p = GqlParser:new()
-        assert.has_perror("after token[23]", function () p:parse(input) end)
+        assert.has_perror("after token[23]", function () p:parse(query) end)
     end)
 
     it("Test invalid field name", function()
-        local input = [[
+        local query = [[
             query foobar($name1: String!, $name2: String!) {
               station(input: [$name1, $name2]) {
                 name.2
@@ -104,11 +104,11 @@ describe("Testing GraphQL Grammar", function()
             }
         ]]
         local p = GqlParser:new()
-        assert.has_perror("after token[23]", function () p:parse(input) end)
+        assert.has_perror("after token[23]", function () p:parse(query) end)
     end)
 
     it("Test invalid object key name", function()
-        local input = [[
+        local query = [[
             query foobar($name1: String!, $name2: String!) {
               station(input: {$name1, $name2}) {
                 name
@@ -117,11 +117,11 @@ describe("Testing GraphQL Grammar", function()
             }
         ]]
         local p = GqlParser:new()
-        assert.has_perror("after token[18]", function () p:parse(input) end)
+        assert.has_perror("after token[18]", function () p:parse(query) end)
     end)
 
     it("Test invalid fragment", function()
-        local input = [[
+        local query = [[
             {
                 leftComparison: hero(episode: EMPIRE) {
                     ...comparisonFields
@@ -133,11 +133,11 @@ describe("Testing GraphQL Grammar", function()
             }
         ]]
         local p = GqlParser:new()
-        assert.has_perror("after token[15]", function () p:parse(input) end)
+        assert.has_perror("after token[15]", function () p:parse(query) end)
     end)
 
     it("Test invalid fragment", function()
-        local input = [[
+        local query = [[
             {
                 leftComparison: hero(episode: EMPIRE) {
                     ...comparisonFields
@@ -149,6 +149,6 @@ describe("Testing GraphQL Grammar", function()
             }
         ]]
         local p = GqlParser:new()
-        assert.has_perror("after token[14]", function () p:parse(input) end)
+        assert.has_perror("after token[14]", function () p:parse(query) end)
     end)
 end)

@@ -6,7 +6,7 @@ local GqlParser = require("gql-parser")
 describe("Testing GraphQL Grammar", function()
 
     it("Test simple query", function()
-        local input = "query { me { name } }"
+        local query = "query { me { name } }"
         local expected = {
             [1] = {
                 type = "query",
@@ -21,12 +21,12 @@ describe("Testing GraphQL Grammar", function()
             }
         }
         local p = GqlParser:new()
-        local result = p:parse(input)
+        local result = p:parse(query)
         assert.are.same(expected, result)
     end)
 
     it("Test arguments", function()
-        local input = "{human(id: 1000) { name, height(unit: FOOT)}}"
+        local query = "{human(id: 1000) { name, height(unit: FOOT)}}"
         local expected = {
             [1] = {
                 type = "query",
@@ -52,12 +52,12 @@ describe("Testing GraphQL Grammar", function()
             }
         }
         local p = GqlParser:new()
-        local result = p:parse(input)
+        local result = p:parse(query)
         assert.are.same(expected, result)
     end)
 
     it("Test aliases", function()
-        local input = "{ empireHero: hero(episode: EMPIRE) {name} jediHero: hero(episode: JEDI) { name } }"
+        local query = "{ empireHero: hero(episode: EMPIRE) {name} jediHero: hero(episode: JEDI) { name } }"
         local expected = {
             [1] = {
                 type = "query",
@@ -86,12 +86,12 @@ describe("Testing GraphQL Grammar", function()
             }
         }
         local p = GqlParser:new()
-        local result = p:parse(input)
+        local result = p:parse(query)
         assert.are.same(expected, result)
     end)
 
     it("Test fragments", function()
-        local input = [[
+        local query = [[
         {
             leftComparison: hero(episode: EMPIRE) {
                 ...comparisonFields
@@ -156,12 +156,12 @@ describe("Testing GraphQL Grammar", function()
             }
         }
         local p = GqlParser:new()
-        local result = p:parse(input)
+        local result = p:parse(query)
         assert.are.same(expected, result)
     end)
 
     it("Test operation", function()
-        local input = [[
+        local query = [[
             query HeroNameAndFriends($episode: Episode) {
               hero(episode: $episode) {
                 name
@@ -201,12 +201,12 @@ describe("Testing GraphQL Grammar", function()
             }
         }
         local p = GqlParser:new()
-        local result = p:parse(input)
+        local result = p:parse(query)
         assert.are.same(expected, result)
     end)
 
     it("Test default variables", function()
-        local input = [[
+        local query = [[
             query HeroNameAndFriends($episode: Episode = JEDI) {
               hero(episode: $episode) {
                 name
@@ -247,12 +247,12 @@ describe("Testing GraphQL Grammar", function()
             }
         }
         local p = GqlParser:new()
-        local result = p:parse(input)
+        local result = p:parse(query)
         assert.are.same(expected, result)
     end)
 
     it("Test directives", function()
-        local input = [[
+        local query = [[
             query Hero($episode: Episode, $withFriends: Boolean!) {
               hero(episode: $episode) {
                 name
@@ -304,12 +304,12 @@ describe("Testing GraphQL Grammar", function()
             }
         }
         local p = GqlParser:new()
-        local result = p:parse(input)
+        local result = p:parse(query)
         assert.are.same(expected, result)
     end)
 
     it("Test mutations", function()
-        local input = [[
+        local query = [[
             mutation CreateReviewForEpisode($ep: Episode!, $review: ReviewInput!) {
               createReview(episode: $ep, review: $review) {
                 stars
@@ -347,12 +347,12 @@ describe("Testing GraphQL Grammar", function()
             }
         }
         local p = GqlParser:new()
-        local result = p:parse(input)
+        local result = p:parse(query)
         assert.are.same(expected, result)
     end)
 
     it("Test inline fragment", function()
-        local input = [[
+        local query = [[
             query HeroForEpisode($ep: Episode!) {
               hero(episode: $ep) {
                 name
@@ -401,12 +401,12 @@ describe("Testing GraphQL Grammar", function()
             }
         }
         local p = GqlParser:new()
-        local result = p:parse(input)
+        local result = p:parse(query)
         assert.are.same(expected, result)
     end)
 
     it("Test object value", function()
-        local input = [[
+        local query = [[
             query foobar($name: String!) {
               station(input: {name: $name, age: 10}) {
                 name
@@ -445,12 +445,12 @@ describe("Testing GraphQL Grammar", function()
             }
         }
         local p = GqlParser:new()
-        local result = p:parse(input)
+        local result = p:parse(query)
         assert.are.same(expected, result)
     end)
 
     it("Test array value", function()
-        local input = [[
+        local query = [[
             query foobar($name1: String!, $name2: String!) {
               station(input: [$name1, $name2]) {
                 name
@@ -490,7 +490,7 @@ describe("Testing GraphQL Grammar", function()
             }
         }
         local p = GqlParser:new()
-        local result = p:parse(input)
+        local result = p:parse(query)
         assert.are.same(expected, result)
     end)
 end)
