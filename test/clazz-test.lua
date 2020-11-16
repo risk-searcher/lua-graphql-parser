@@ -1,6 +1,6 @@
-package.path = package.path .. ";../?.lua"
+package.path = package.path .. ";../src/?.lua"
 
-local Clazz = require("clazz")
+local Clazz = require("graphql-parser.clazz")
 
 describe("Testing Clazz", function()
 

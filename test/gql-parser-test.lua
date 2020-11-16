@@ -1,6 +1,6 @@
-package.path = package.path .. ";../?.lua"
+package.path = package.path .. ";../src/?.lua"
 
-local Gql = require("gql-parser")
+local GqlParser = require("graphql-parser")
 --local inspect = require('inspect')
 
 describe("Testing GraphQL Grammar", function()
@@ -20,7 +20,7 @@ describe("Testing GraphQL Grammar", function()
                 }
             }
         }
-        local p = Gql.Parser:new()
+        local p = GqlParser:new()
         local result = p:parse(query)
         assert.are.same(expected, result)
     end)
@@ -51,7 +51,7 @@ describe("Testing GraphQL Grammar", function()
                 }
             }
         }
-        local p = Gql.Parser:new()
+        local p = GqlParser:new()
         local result = p:parse(query)
         assert.are.same(expected, result)
     end)
@@ -85,7 +85,7 @@ describe("Testing GraphQL Grammar", function()
                 }
             }
         }
-        local p = Gql.Parser:new()
+        local p = GqlParser:new()
         local result = p:parse(query)
         assert.are.same(expected, result)
     end)
@@ -155,7 +155,7 @@ describe("Testing GraphQL Grammar", function()
                 }
             }
         }
-        local p = Gql.Parser:new()
+        local p = GqlParser:new()
         local result = p:parse(query)
         assert.are.same(expected, result)
     end)
@@ -200,7 +200,7 @@ describe("Testing GraphQL Grammar", function()
                 }
             }
         }
-        local p = Gql.Parser:new()
+        local p = GqlParser:new()
         local result = p:parse(query)
         assert.are.same(expected, result)
     end)
@@ -246,7 +246,7 @@ describe("Testing GraphQL Grammar", function()
                 }
             }
         }
-        local p = Gql.Parser:new()
+        local p = GqlParser:new()
         local result = p:parse(query)
         assert.are.same(expected, result)
     end)
@@ -303,7 +303,7 @@ describe("Testing GraphQL Grammar", function()
                 }
             }
         }
-        local p = Gql.Parser:new()
+        local p = GqlParser:new()
         local result = p:parse(query)
         assert.are.same(expected, result)
     end)
@@ -346,7 +346,7 @@ describe("Testing GraphQL Grammar", function()
                 }
             }
         }
-        local p = Gql.Parser:new()
+        local p = GqlParser:new()
         local result = p:parse(query)
         assert.are.same(expected, result)
     end)
@@ -400,7 +400,7 @@ describe("Testing GraphQL Grammar", function()
                 }
             }
         }
-        local p = Gql.Parser:new()
+        local p = GqlParser:new()
         local result = p:parse(query)
         assert.are.same(expected, result)
     end)
@@ -444,7 +444,7 @@ describe("Testing GraphQL Grammar", function()
                 }
             }
         }
-        local p = Gql.Parser:new()
+        local p = GqlParser:new()
         local result = p:parse(query)
         assert.are.same(expected, result)
     end)
@@ -489,7 +489,7 @@ describe("Testing GraphQL Grammar", function()
                 }
             }
         }
-        local p = Gql.Parser:new()
+        local p = GqlParser:new()
         local result = p:parse(query)
         assert.are.same(expected, result)
     end)

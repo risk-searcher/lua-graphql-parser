@@ -1,15 +1,15 @@
-local Clazz = require("clazz")
-local Lexer = require("lexer")
+local Clazz = require("graphql-parser.clazz")
+local Lexer = require("graphql-parser.lexer")
 
 local NAME_PATTERN = "^[%w_][%w%d_]*$"
 local VARIABLE_PATTERN = "^$?[%w_][%w%d_]*$"
 local DIRECTIVE_PATTERN = "^@[%w_][%w%d_]*$"
 local FRAGMENT_PATTERN = "^%.%.%."
 
-local Parser = Clazz.class("Gql.Parser")
-local Document = Clazz.class("Gql.Document")
-local Operation = Clazz.class("Gql.Operation")
-local RootField = Clazz.class("Gql.RootField")
+local Parser = Clazz.class("GqlParser")
+local Document = Clazz.class("GqlParser.Document")
+local Operation = Clazz.class("GqlParser.Operation")
+local RootField = Clazz.class("GqlParser.RootField")
 
 local function max(x, y)
     if x > y then
@@ -489,9 +489,4 @@ function RootField._nestDepth(this, parent_doc, fragment_safety_lock)
 end
 
 
-return {
-    Parser = Parser,
-    Document = Document,
-    Operation = Operation,
-    RootField = RootField
-}
+return Parser

@@ -1,6 +1,6 @@
-package.path = package.path .. ";../?.lua"
+package.path = package.path .. ";../src/?.lua"
 
-local Gql = require("gql-parser")
+local GqlParser = require("graphql-parser")
 --local inspect = require('inspect')
 
 local assert = require("luassert")
@@ -33,25 +33,25 @@ describe("Testing GraphQL Grammar", function()
 
     it("Test unbalanced brace", function()
         local query = "query { me { name } "
-        local p = Gql.Parser:new()
+        local p = GqlParser:new()
         assert.has_perror("after token[6]", function () p:parse(query) end)
     end)
 
     it("Test invalid (", function()
         local query = "query { me { ( name } }"
-        local p = Gql.Parser:new()
+        local p = GqlParser:new()
         assert.has_perror("after token[4]", function () p:parse(query) end)
     end)
 
     it("Test invalid )", function()
         local query = "query { me { )name } }"
-        local p = Gql.Parser:new()
+        local p = GqlParser:new()
         assert.has_perror("after token[4]", function () p:parse(query) end)
     end)
 
     it("Test type", function()
         local query = "queries { me { name } }"
-        local p = Gql.Parser:new()
+        local p = GqlParser:new()
         assert.has_perror("at token[1]", function () p:parse(query) end)
     end)
 
@@ -64,7 +64,7 @@ describe("Testing GraphQL Grammar", function()
               }
             }
         ]]
-        local p = Gql.Parser:new()
+        local p = GqlParser:new()
         assert.has_perror("after token[4]", function () p:parse(query) end)
     end)
 
@@ -77,7 +77,7 @@ describe("Testing GraphQL Grammar", function()
               }
             }
         ]]
-        local p = Gql.Parser:new()
+        local p = GqlParser:new()
         assert.has_perror("after token[2]", function () p:parse(query) end)
     end)
 
@@ -90,7 +90,7 @@ describe("Testing GraphQL Grammar", function()
               }
             }
         ]]
-        local p = Gql.Parser:new()
+        local p = GqlParser:new()
         assert.has_perror("after token[23]", function () p:parse(query) end)
     end)
 
@@ -103,7 +103,7 @@ describe("Testing GraphQL Grammar", function()
               }
             }
         ]]
-        local p = Gql.Parser:new()
+        local p = GqlParser:new()
         assert.has_perror("after token[23]", function () p:parse(query) end)
     end)
 
@@ -116,7 +116,7 @@ describe("Testing GraphQL Grammar", function()
               }
             }
         ]]
-        local p = Gql.Parser:new()
+        local p = GqlParser:new()
         assert.has_perror("after token[18]", function () p:parse(query) end)
     end)
 
@@ -132,7 +132,7 @@ describe("Testing GraphQL Grammar", function()
                 name
             }
         ]]
-        local p = Gql.Parser:new()
+        local p = GqlParser:new()
         assert.has_perror("after token[15]", function () p:parse(query) end)
     end)
 
@@ -148,7 +148,7 @@ describe("Testing GraphQL Grammar", function()
                 name
             }
         ]]
-        local p = Gql.Parser:new()
+        local p = GqlParser:new()
         assert.has_perror("after token[14]", function () p:parse(query) end)
     end)
 end)

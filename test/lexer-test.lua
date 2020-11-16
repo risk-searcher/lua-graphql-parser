@@ -1,6 +1,6 @@
-package.path = package.path .. ";../?.lua"
+package.path = package.path .. ";../src/?.lua"
 
-local Lexer = require("lexer")
+local Lexer = require("graphql-parser.lexer")
 
 describe("Testing Lexer", function()
 
