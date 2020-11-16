@@ -42,7 +42,7 @@ local parser = GqlParser:new()
 local graph = parser:parse(query)
 ```
 
-### `Gql.Document:listOps()`
+### `GqlParser.Document:listOps()`
 
 Return list of operations (excluding Fragments), each element of the list is a `Gql.Operation`
 
