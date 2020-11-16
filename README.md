@@ -75,7 +75,7 @@ Example:
 ```
 local parser = GqlParser:new()
 local graph = parser:parse(query)
-local output = graph:hashFields({"__"})
+local output = graph:hashFields({"^__"})
 ```
 
 ### `GqlParser.Document:nestDepth()`
