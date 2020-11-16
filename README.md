@@ -70,7 +70,7 @@ Example:
 -- refer to https://graphql.org/learn/queries/#fragments
 local parser = GqlParser:new()
 local graph = parser:parse(query)
-local fragment = graph.findFragment("comparisonFields")
+local fragment = graph:findFragment("comparisonFields")
 ```
 
 ### `Gql.Document:hasFields(pattern_list)`
@@ -81,7 +81,7 @@ Example:
 ```
 local parser = GqlParser:new()
 local graph = parser:parse(query)
-local output = graph.hashFields({"__"})
+local output = graph:hashFields({"__"})
 ```
 
 ### `Gql.Document:nestDepth()`
@@ -92,7 +92,7 @@ Example:
 ```
 local parser = GqlParser:new()
 local graph = parser:parse(query)
-local n = graph.nestDepth()
+local n = graph:nestDepth()
 ```
 
 ### `Gql.Operation:getRootFields()`
@@ -110,7 +110,7 @@ for _, op in graph:listOps() do
 end
 ```
 
-### `Gql.RootField.resolveArgument(input)`
+### `Gql.RootField:resolveArgument(input)`
 
 Resolve the field argument using `input` as the query input. Note `input` should be a JSON, and you probably will need to use `cjson` to parse it. The return value is the resolved argument as a JSON object.
 
@@ -119,7 +119,7 @@ Example:
 -- refer to https://graphql.org/learn/queries/#using-variables-inside-fragments
 local parser = GqlParser:new()
 local graph = parser:parse(query)
-local argument = graph:listOps()[1]:getRootFields()[1].resolveArgument({})
+local argument = graph:listOps()[1]:getRootFields()[1]:resolveArgument({})
 local expected = {episode = "EMPIRE"}
 assert.are.same(argument, expected)
 ```
