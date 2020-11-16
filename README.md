@@ -34,7 +34,7 @@ All language according to http://spec.graphql.org/June2018/ should have been imp
 
 ### `GqlParser:parse(graphQL_string)`
 
-Parse an input GraphQL string, returns a `Gql.Document` 
+Parse an input GraphQL string, returns a `GqlParser.Document` 
 
 Example:
 ```
@@ -44,7 +44,7 @@ local graph = parser:parse(query)
 
 ### `GqlParser.Document:listOps()`
 
-Return list of operations (excluding Fragments), each element of the list is a `Gql.Operation`
+Return list of operations (excluding Fragments), each element of the list is a `GqlParser.Operation`
 
 Example:
 ```
@@ -91,7 +91,7 @@ local n = graph:nestDepth()
 
 ### `GqlParser.Operation:getRootFields()`
 
-Within the operation (i.e. a query or a mutation), return the list of root fields. Note, it usually should only have ONE root field but it does not necessary need to be. The return value is a list of `Gql.RootField`
+Within the operation (i.e. a query or a mutation), return the list of root fields. Note, it usually should only have ONE root field but it does not necessary need to be. The return value is a list of `GqlParser.RootField`
 
 Example:
 ```
