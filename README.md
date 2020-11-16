@@ -3,6 +3,7 @@ A graphQL parser implemented in Lua
 
 [![Build Status](https://travis-ci.com/samngms/lua-graphql-parser.svg?branch=main)](https://travis-ci.com/samngms/lua-graphql-parser)
 [![Test coverage](https://codecov.io/gh/samngms/lua-graphql-parser/branch/main/graph/badge.svg?token=VA524SPWKR)](https://codecov.io/gh/samngms/lua-graphql-parser)
+[![LuaRocks](https://img.shields.io/badge/-LuaRocks-blue)](https://luarocks.org/modules/samngms/graphql-parser)
 
 # How to use
 
