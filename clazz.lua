@@ -29,7 +29,7 @@ function Clazz:new(obj)
     obj = obj or {}
     self.__index = self
     setmetatable(obj, self)
-    obj.__name = self.__name
+    -- obj.__name = self.__name
     return obj
 end
 

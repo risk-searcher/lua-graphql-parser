@@ -1,5 +1,6 @@
 local Clazz = require("clazz")
 local Lexer = require("lexer")
+local GqlNode = require("gql-nodes")
 
 local NAME_PATTERN = "^[%w_][%w%d_]*$"
 local VARIABLE_PATTERN = "^$?[%w_][%w%d_]*$"
@@ -33,7 +34,7 @@ function GqlParser:_parse()
     while true do
         local token = self:getToken()
         if nil == token then
-            return list
+            return GqlNode.Document:new(list)
         elseif '{' == token then
             local op = {type="query"} -- default is query
             op.fields = self:read_fields()
@@ -291,7 +292,6 @@ function GqlParser:read_array()
 end
 
 function GqlParser:error(msg)
-    -- TODO
     local s = nil
     local i = self.idx-1
     if i == 0 then
