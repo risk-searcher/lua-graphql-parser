@@ -1,7 +1,6 @@
 package.path = package.path .. ";../?.lua"
 
-local GqlParser = require("gql-parser")
-local GqlNode = require("gql-nodes")
+local Gql = require("gql-parser")
 --local inspect = require('inspect')
 
 describe("Testing GraphQL Nodes", function()
@@ -27,7 +26,7 @@ describe("Testing GraphQL Nodes", function()
           }
         }
         ]]
-        local p = GqlParser:new()
+        local p = Gql.Parser:new()
         local graph = p:parse(query)
         local list = graph:listOps()
         assert.are.same(#list, 2)
@@ -54,7 +53,7 @@ describe("Testing GraphQL Nodes", function()
             }
         }
         ]]
-        local p = GqlParser:new()
+        local p = Gql.Parser:new()
         local graph = p:parse(query)
         local list = graph:listOps()
         assert.are.same(#list, 1)
@@ -80,7 +79,7 @@ describe("Testing GraphQL Nodes", function()
             }
         }
         ]]
-        local p = GqlParser:new()
+        local p = Gql.Parser:new()
         local graph = p:parse(query)
         local list = graph:listOps()
         assert.are.same(#list, 1)
@@ -110,7 +109,7 @@ describe("Testing GraphQL Nodes", function()
           }
         }
         ]]
-        local p = GqlParser:new()
+        local p = Gql.Parser:new()
         local graph = p:parse(query)
         local list = graph:listOps()
         assert.are.same(#list, 1)
@@ -134,7 +133,7 @@ describe("Testing GraphQL Nodes", function()
           }
         }
         ]]
-        local p = GqlParser:new()
+        local p = Gql.Parser:new()
         local graph = p:parse(query)
         local xx = graph:hasFields({"sta"})
         assert.are.same(graph:hasFields({"sta"}), {"createReview.stars"})
@@ -159,7 +158,7 @@ describe("Testing GraphQL Nodes", function()
             }
         }
         ]]
-        local p = GqlParser:new()
+        local p = Gql.Parser:new()
         local graph = p:parse(query)
         assert.are.same(graph:hasFields({"name"}), {"createReview.name", "createReview.friends.name"})
         assert.are.same(graph:hasFields({"end"}), {"createReview.friends"})
@@ -184,7 +183,7 @@ describe("Testing GraphQL Nodes", function()
             ...comparisonFields
         }
         ]]
-        local p = GqlParser:new()
+        local p = Gql.Parser:new()
         local graph = p:parse(query)
         local list = graph:listOps()
         assert.are.same(graph:hasFields({"name"}), {"createReview.name", "createReview.friends.name"})
@@ -205,7 +204,7 @@ describe("Testing GraphQL Nodes", function()
               }
             }
         ]]
-        local p = GqlParser:new()
+        local p = Gql.Parser:new()
         local graph = p:parse(query)
         assert.are.same(graph:hasFields({"pri", "hei"}), {"hero.primaryFunction", "hero.height"})
     end)
@@ -219,7 +218,7 @@ describe("Testing GraphQL Nodes", function()
           }
         }
         ]]
-        local p = GqlParser:new()
+        local p = Gql.Parser:new()
         local graph = p:parse(query)
         local n = graph:nestDepth()
         assert.are.same(n, 1)
@@ -239,7 +238,7 @@ describe("Testing GraphQL Nodes", function()
           }
         }
         ]]
-        local p = GqlParser:new()
+        local p = Gql.Parser:new()
         local graph = p:parse(query)
         local n = graph:nestDepth()
         assert.are.same(n, 1)
@@ -257,7 +256,7 @@ describe("Testing GraphQL Nodes", function()
               }
             }
         ]]
-        local p = GqlParser:new()
+        local p = Gql.Parser:new()
         local graph = p:parse(query)
         local n = graph:nestDepth()
         assert.are.same(n, 2)
@@ -286,7 +285,7 @@ describe("Testing GraphQL Nodes", function()
               }
             }
         ]]
-        local p = GqlParser:new()
+        local p = Gql.Parser:new()
         local graph = p:parse(query)
         local n = graph:nestDepth()
         assert.are.same(n, 3)
@@ -310,7 +309,7 @@ describe("Testing GraphQL Nodes", function()
             }
         }
         ]]
-        local p = GqlParser:new()
+        local p = Gql.Parser:new()
         local graph = p:parse(query)
         local n = graph:nestDepth()
         assert.are.same(n, 2)

@@ -7,8 +7,8 @@ A graphQL parser combinator implemented in Lua
 # How to use
 
 ```
-local GqlParser = require('graphql-parser')
-local parser = GqlParser:new()
+local Gql = require('graphql-parser')
+local parser = Gql.Parser:new()
 local graph = parser:parse('query { me { name } }')
 local expected = {
     [1] = {
@@ -30,21 +30,14 @@ All language according to http://spec.graphql.org/June2018/ should have been imp
 
 # API
 
-| Class           | Defined in       |
-|:----------------|:-----------------|
-| `GqlParser`     | `gql-parser.lua` |
-| `Gql.Document`  | `gql-nodes.lua`  |
-| `Gql.Operation` | `gql-nodes.lua`  |
-| `Gql.RootField` | `gql-nodes.lua`  |
 
-
-### `GqlParser:parse(graphQL_string)`
+### `Gql.Parser:parse(graphQL_string)`
 
 Parse an input GraphQL string, returns a `Gql.Document` 
 
 Example:
 ```
-local parser = GqlParser:new()
+local parser = Gql.Parser:new()
 local graph = parser:parse(query)
 ```
 
@@ -54,7 +47,7 @@ Return list of operations (excluding Fragments), each element of the list is a `
 
 Example:
 ```
-local parser = GqlParser:new()
+local parser = Gql.Parser:new()
 local graph = parser:parse(query)
 for _, op in graph:listOps() do
     -- op is a GraphQL operation, maybe a query/mutation/subscribe
@@ -68,7 +61,7 @@ Return the fragment definition, nil if not found
 Example:
 ```
 -- refer to https://graphql.org/learn/queries/#fragments
-local parser = GqlParser:new()
+local parser = Gql.Parser:new()
 local graph = parser:parse(query)
 local fragment = graph:findFragment("comparisonFields")
 ```
@@ -79,7 +72,7 @@ Check if the document contains any fields matching `pattern_list` (which is a li
 
 Example:
 ```
-local parser = GqlParser:new()
+local parser = Gql.Parser:new()
 local graph = parser:parse(query)
 local output = graph:hashFields({"__"})
 ```
@@ -90,7 +83,7 @@ Return the max nest depth of the whole document. The value is the depth under ro
 
 Example:
 ```
-local parser = GqlParser:new()
+local parser = Gql.Parser:new()
 local graph = parser:parse(query)
 local n = graph:nestDepth()
 ```
@@ -102,7 +95,7 @@ Within the operation (i.e. a query or a mutation), return the list of root field
 Example:
 ```
 -- refer to https://graphql.org/learn/queries/#using-variables-inside-fragments
-local parser = GqlParser:new()
+local parser = Gql.Parser:new()
 local graph = parser:parse(query)
 for _, op in graph:listOps() do
     local roots = op:getRootFields()
@@ -117,7 +110,7 @@ Resolve the field argument using `input` as the query input. Note `input` should
 Example:
 ```
 -- refer to https://graphql.org/learn/queries/#using-variables-inside-fragments
-local parser = GqlParser:new()
+local parser = Gql.Parser:new()
 local graph = parser:parse(query)
 local argument = graph:listOps()[1]:getRootFields()[1]:resolveArgument({})
 local expected = {episode = "EMPIRE"}
