@@ -411,25 +411,33 @@ end
 -------------------------------------------------------------------------
 function RootField:resolveArgument(input)
     local result = {}
-    local args = self.arguments
-    for _, arg in ipairs(args) do
-        local item = {}
-        local value = arg.value
-        if string.match(value, "^%$") then
-            local variable = self.parent_op:findVariable(value)
-            item["type"] = variable.type
-            local tmp = string.sub(value, 2)
-            local input_value = input[tmp]
-            if input_value then
-                item["value"] = input_value
-            elseif variable.default_value then
-                item["value"] = variable.default_value
-            end
-        else
-            item["value"] = value
-        end
-        result[arg.name] = item
-    end
+    args = self.arguments
+		  for _, arg in ipairs(args) do
+		      local value = arg.value
+		      if type(value) == "table" then
+		      	self.arguments = value
+	          tmp_result = self:resolveArgument(input)
+	          for k,v in pairs(tmp_result) do
+	          	result[k] = v
+	          end
+		      elseif type(value) == "string" then
+				   	local item = {}
+				    if string.match(value, "^%$") then
+				        local variable = self.parent_op:findVariable(value)
+				        item["type"] = variable.type
+				        local tmp = string.sub(value, 2)
+				        local input_value = input[tmp]
+				        if input_value then
+				            item["value"] = input_value
+				        elseif variable.default_value then
+				            item["value"] = variable.default_value
+				        end
+				    else
+				        item["value"] = value
+				    end
+				    result[arg.name] = item
+				  end
+		  end
     return result
 end
 
