@@ -1,8 +1,8 @@
 package = "graphql-parser"
-version = "1.0.0-1"
+version = "1.0.1-1"
 source = {
    url = "git://github.com/samngms/lua-graphql-parser",
-   tag = "1.0.0",
+   tag = "1.0.1",
 }
 description = {
    summary = "A graphQL parser implemented in Lua",
