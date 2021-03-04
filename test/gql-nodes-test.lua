@@ -123,8 +123,79 @@ describe("Testing GraphQL Nodes", function()
         }
         assert.are.same(argument, expected)
     end)
+    
+    it("Test resolveArgument with nested argument", function()
+        local query = [[
+        mutation CreateReviewForEpisode($age: Int!) {
+          createReview(input: {episode: JEDI, review: 20, age: $age}) {
+            stars
+            commentary
+          }
+        }
 
-    it("Test hasFields easy case", function()
+        fragment comparisonFields on Character {
+            name
+            appearsIn
+            friends {
+                name
+            }
+        }
+        ]]
+        local p = GqlParser:new()
+        local graph = p:parse(query)
+        local list = graph:listOps()
+        assert.are.same(#list, 1)
+        local rootFields = list[1]:getRootFields()
+        assert.are.same(#rootFields, 1)
+        local rootField = rootFields[1]
+        local argument = rootField:resolveArgument({age = 10})
+        local expected = {
+            episode = { value = "JEDI" },
+            review = { value = "20" },
+            age = { value = 10, type = {name="Int", non_null = true} }
+        }
+        assert.are.same(expected, argument)
+    end)
+    
+    it("Test resolveArgument with object argument", function()
+        local query = [[
+        mutation CreateReviewForEpisode($input: InputType!) {
+          createReview(input: $input) {
+            stars
+            commentary
+          }
+        }
+
+        fragment comparisonFields on Character {
+            name
+            appearsIn
+            friends {
+                name
+            }
+        }
+        ]]
+        local p = GqlParser:new()
+        local graph = p:parse(query)
+        local list = graph:listOps()
+        assert.are.same(#list, 1)
+        local rootFields = list[1]:getRootFields()
+        assert.are.same(#rootFields, 1)
+        local rootField = rootFields[1]
+        local argument = rootField:resolveArgument({input = {episode= "JEDI",review= "20",age = "10"}})
+        local expected = {
+            input = {
+							type = {
+								name = 'InputType',
+								non_null = true },
+							value = {
+								age = '10',
+								episode = 'JEDI',
+								review = '20' } }
+        }
+        assert.are.same(expected, argument)
+    end)
+
+		it("Test hasFields easy case", function()
         local query = [[
         mutation CreateReviewForEpisode($ep: Episode!, $review: ReviewInput!) {
           createReview(episode: $ep, review: $review, age: 10) {
@@ -138,7 +209,7 @@ describe("Testing GraphQL Nodes", function()
         assert.are.same(graph:hasFields({"sta"}), {"createReview.stars"})
         assert.are.same(graph:hasFields({"sta", "tar"}), {"createReview.stars", "createReview.commentary"})
     end)
-
+    
     it("Test hasFields with fragment", function()
         local query = [[
         mutation CreateReviewForEpisode($ep: Episode!, $review: ReviewInput!) {
